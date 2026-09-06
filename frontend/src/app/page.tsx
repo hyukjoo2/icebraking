@@ -69,7 +69,7 @@ const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ??
   (process.env.NODE_ENV === "development"
     ? "http://localhost:4000"
-    : "https://icebraking-backend.onrender.com");
+    : "https://icebraking.onrender.com");
 
 function apiUrl(path: string) {
   if (!apiBaseUrl) return path;

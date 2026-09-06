@@ -60,7 +60,7 @@ BASE_URL=https://your-domain.example SMOKE_USERS=50 npm run smoke:concurrency
 프로덕션에서는 아래 환경변수를 설정하세요.
 
 ```bash
-NEXT_PUBLIC_API_BASE_URL=https://icebraking-backend.onrender.com
+NEXT_PUBLIC_API_BASE_URL=https://icebraking.onrender.com
 FRONTEND_ORIGIN=https://your-domain.example
 PORT=4000
 UPSTASH_REDIS_REST_URL=
@@ -81,7 +81,7 @@ UPSTASH_REDIS_REST_TOKEN=
 backend FRONTEND_ORIGIN=https://프론트엔드주소
 backend UPSTASH_REDIS_REST_URL=...
 backend UPSTASH_REDIS_REST_TOKEN=...
-frontend NEXT_PUBLIC_API_BASE_URL=https://icebraking-backend.onrender.com
+frontend NEXT_PUBLIC_API_BASE_URL=https://icebraking.onrender.com
 ```
 
 ## 운영 메모
