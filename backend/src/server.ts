@@ -11,13 +11,17 @@ import {
 
 const app = express();
 const port = Number(process.env.PORT ?? 4000);
-const allowedOrigins = (
-  process.env.FRONTEND_ORIGIN ??
-  "http://localhost:3000,https://icebraking-frontend.vercel.app"
-)
+const defaultAllowedOrigins = [
+  "http://localhost:3000",
+  "https://icebraking-frontend.vercel.app",
+];
+const configuredAllowedOrigins = (process.env.FRONTEND_ORIGIN ?? "")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
+const allowedOrigins = Array.from(
+  new Set([...defaultAllowedOrigins, ...configuredAllowedOrigins]),
+);
 const birthDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
 app.use(express.json());
