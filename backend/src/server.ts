@@ -11,13 +11,26 @@ import {
 
 const app = express();
 const port = Number(process.env.PORT ?? 4000);
-const allowedOrigin = process.env.FRONTEND_ORIGIN ?? "http://localhost:3000";
+const allowedOrigins = (
+  process.env.FRONTEND_ORIGIN ??
+  "http://localhost:3000,https://icebraking-frontend.vercel.app"
+)
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 const birthDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
 app.use(express.json());
 app.use(
   cors({
-    origin: allowedOrigin === "*" ? true : allowedOrigin.split(","),
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
   }),
 );
 
