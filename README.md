@@ -69,7 +69,7 @@ UPSTASH_REDIS_REST_TOKEN=
 
 참가자 정보는 Redis Hash에 참가자 ID별로 저장됩니다. 여러 명이 동시에 입장해도 한 요청이 전체 목록을 통째로 덮어쓰지 않도록 구성했습니다.
 
-프론트엔드와 백엔드를 서로 다른 도메인에 배포하는 경우 `NEXT_PUBLIC_API_BASE_URL`에는 백엔드 URL을, `FRONTEND_ORIGIN`에는 프론트엔드 URL을 넣어 CORS를 맞춰야 합니다. 여러 origin은 쉼표로 구분합니다.
+프론트엔드는 현재 `https://icebraking.onrender.com` 백엔드 주소를 코드 상수로 사용합니다. 백엔드 주소를 바꾸는 경우 [frontend/src/app/page.tsx](/Users/hyukjoolee/repository/icebraking/frontend/src/app/page.tsx)의 `apiBaseUrl`을 수정하세요. 백엔드의 `FRONTEND_ORIGIN`에는 프론트엔드 URL을 넣어 CORS를 맞춰야 합니다. 여러 origin은 쉼표로 구분합니다.
 
 ## Render 배포
 
@@ -81,7 +81,6 @@ UPSTASH_REDIS_REST_TOKEN=
 backend FRONTEND_ORIGIN=https://프론트엔드주소
 backend UPSTASH_REDIS_REST_URL=...
 backend UPSTASH_REDIS_REST_TOKEN=...
-frontend NEXT_PUBLIC_API_BASE_URL=https://icebraking.onrender.com
 ```
 
 ## 운영 메모

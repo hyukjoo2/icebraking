@@ -65,12 +65,7 @@ type Matches = Record<MatchKey, MatchResult | null>;
 
 const birthDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
-const configuredApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
-const apiBaseUrl =
-  configuredApiBaseUrl ||
-  (process.env.NODE_ENV === "development"
-    ? "http://localhost:4000"
-    : "https://icebraking.onrender.com");
+const apiBaseUrl = "https://icebraking.onrender.com";
 
 function apiUrl(path: string) {
   if (!apiBaseUrl) return path;
