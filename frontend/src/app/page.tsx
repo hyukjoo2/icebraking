@@ -246,8 +246,14 @@ export default function Home() {
               버전은 템플릿 기반으로 빠르게 반응합니다.
             </p>
             <div className="notice">
-              재미용 콘텐츠입니다. 실제 만세력 엔진은 다음 단계에서 붙일 수
-              있어요.
+              재미용 콘텐츠입니다. 실제 만세력을 기반으로 매칭합니다.
+            </div>
+            <div className="qr-card">
+              <img src="/icebraking-frontend-qr.png" alt="입장 QR 코드" />
+              <div>
+                <strong>QR로 바로 입장</strong>
+                <span>스마트폰 카메라로 스캔해 주세요.</span>
+              </div>
             </div>
           </div>
 

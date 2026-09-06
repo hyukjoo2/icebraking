@@ -133,6 +133,42 @@ h2 {
   padding: 14px 16px;
 }
 
+.qr-card {
+  align-items: center;
+  background: rgba(255, 253, 248, 0.94);
+  border-radius: 8px;
+  color: var(--ink);
+  display: flex;
+  gap: 16px;
+  margin-top: 18px;
+  max-width: 360px;
+  padding: 14px;
+}
+
+.qr-card img {
+  background: #fff;
+  border-radius: 6px;
+  display: block;
+  height: 104px;
+  width: 104px;
+}
+
+.qr-card strong,
+.qr-card span {
+  display: block;
+}
+
+.qr-card strong {
+  font-size: 18px;
+  line-height: 1.25;
+  margin-bottom: 6px;
+}
+
+.qr-card span {
+  color: var(--muted);
+  line-height: 1.4;
+}
+
 .entry-form,
 .profile-panel,
 .match-panel,
