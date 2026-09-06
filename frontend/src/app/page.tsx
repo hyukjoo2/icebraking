@@ -96,7 +96,9 @@ export default function Home() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [participants, setParticipants] = useState<PublicParticipant[]>([]);
   const [matches, setMatches] = useState<Matches | null>(null);
+  const [matchingStarted, setMatchingStarted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAdminActionRunning, setIsAdminActionRunning] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -108,6 +110,7 @@ export default function Home() {
       if (!response.ok) return;
       const data = await readJson(response);
       setParticipants(data.participants);
+      setMatchingStarted(Boolean(data.matchingStarted));
       if (!storedId) return;
 
       const matchesResponse = await fetch(
@@ -118,6 +121,7 @@ export default function Home() {
       const matchesData = await readJson(matchesResponse);
       setProfile(matchesData.profile);
       setMatches(matchesData.matches);
+      setMatchingStarted(Boolean(matchesData.matchingStarted));
     }
     load();
     const timer = window.setInterval(load, 3000);
@@ -169,6 +173,7 @@ export default function Home() {
       setMe(data.participant);
       setProfile(data.profile);
       setParticipants(data.participants);
+      setMatchingStarted(Boolean(data.matchingStarted));
 
       const matchesResponse = await fetch(
         apiUrl(`/api/matches?participantId=${data.participant.id}`),
@@ -177,6 +182,7 @@ export default function Home() {
       if (matchesResponse.ok) {
         const matchesData = await readJson(matchesResponse);
         setMatches(matchesData.matches);
+        setMatchingStarted(Boolean(matchesData.matchingStarted));
       }
     } catch {
       setError("백엔드 서버에 연결할 수 없습니다. npm run dev:backend를 확인해 주세요.");
@@ -186,12 +192,41 @@ export default function Home() {
   }
 
   async function resetSession() {
-    await fetch(apiUrl("/api/participants"), { method: "DELETE" });
+    if (!me) return;
+    setIsAdminActionRunning(true);
+    await fetch(apiUrl(`/api/participants?participantId=${me.id}`), {
+      method: "DELETE",
+    });
     window.localStorage.removeItem("icebreaking-participant-id");
     setMe(null);
     setProfile(null);
     setMatches(null);
+    setMatchingStarted(false);
     setParticipants([]);
+    setIsAdminActionRunning(false);
+  }
+
+  async function startMatchingSession() {
+    if (!me) return;
+    setIsAdminActionRunning(true);
+    try {
+      const response = await fetch(apiUrl("/api/session/matching"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ participantId: me.id }),
+      });
+      const data = await readJson(response);
+      if (!response.ok) {
+        setError(data.message ?? "매칭을 시작할 수 없습니다.");
+        return;
+      }
+
+      setMatchingStarted(Boolean(data.matchingStarted));
+    } catch {
+      setError("매칭 시작 요청에 실패했습니다.");
+    } finally {
+      setIsAdminActionRunning(false);
+    }
   }
 
   return (
@@ -320,7 +355,12 @@ export default function Home() {
               <h2>4가지 매칭</h2>
             </div>
 
-            {matchItems.some((item) => item.match) ? (
+            {!matchingStarted ? (
+              <div className="empty">
+                <h2>매칭 대기 중</h2>
+                <p>모든 참가자가 입장한 뒤 관리자가 매칭을 시작합니다.</p>
+              </div>
+            ) : matchItems.some((item) => item.match) ? (
               <div className="match-wheel">
                 <div className="match-core">
                   <span>{me.name}</span>
@@ -348,7 +388,20 @@ export default function Home() {
           <aside className="people">
             <div className="people-head">
               <h2>입장 명단</h2>
-              <button onClick={resetSession}>세션 초기화</button>
+              {me.name === "이혁주" ? (
+                <div className="admin-actions">
+                  <button
+                    className="admin-primary"
+                    onClick={startMatchingSession}
+                    disabled={isAdminActionRunning || matchingStarted}
+                  >
+                    매칭 시작
+                  </button>
+                  <button onClick={resetSession} disabled={isAdminActionRunning}>
+                    캐시 초기화
+                  </button>
+                </div>
+              ) : null}
             </div>
             <div className="people-list">
               {participants.map((participant) => (

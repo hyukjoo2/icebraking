@@ -487,7 +487,8 @@ select:focus {
   margin-bottom: 0;
 }
 
-.people-head button {
+.people-head button,
+.admin-actions button {
   background: transparent;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -495,6 +496,24 @@ select:focus {
   font-weight: 800;
   min-height: 38px;
   padding: 0 12px;
+}
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.admin-actions .admin-primary {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #fff;
+}
+
+.admin-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .people-list {

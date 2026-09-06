@@ -4,6 +4,7 @@ import type { Participant } from "./fortune.js";
 
 type Store = {
   participants: Participant[];
+  matchingStarted: boolean;
 };
 
 const SESSION_ID = "local-monthly";
@@ -18,7 +19,10 @@ const globalForStore = globalThis as typeof globalThis & {
 };
 
 const memoryStore: Store =
-  globalForStore.icebreakingStore ?? { participants: [] };
+  globalForStore.icebreakingStore ?? {
+    participants: [],
+    matchingStarted: false,
+  };
 
 if (!globalForStore.icebreakingStore) {
   globalForStore.icebreakingStore = memoryStore;
@@ -26,6 +30,10 @@ if (!globalForStore.icebreakingStore) {
 
 function sessionKey() {
   return `icebreaking:session:${SESSION_ID}:participants`;
+}
+
+function matchingKey() {
+  return `icebreaking:session:${SESSION_ID}:matching-started`;
 }
 
 function sortParticipants(participants: Participant[]) {
@@ -73,10 +81,28 @@ export async function saveParticipant(participant: Participant) {
 export async function clearParticipants() {
   if (!redis) {
     memoryStore.participants = [];
+    memoryStore.matchingStarted = false;
     return;
   }
 
-  await redis.del(sessionKey());
+  await redis.del(sessionKey(), matchingKey());
+}
+
+export async function isMatchingStarted() {
+  if (!redis) return memoryStore.matchingStarted;
+
+  const value = await redis.get(matchingKey());
+  return value === "1" || value === 1 || value === true;
+}
+
+export async function startMatching() {
+  if (!redis) {
+    memoryStore.matchingStarted = true;
+    return true;
+  }
+
+  await redis.set(matchingKey(), "1", { ex: SESSION_TTL_SECONDS });
+  return true;
 }
 
 export async function getStoreHealth() {

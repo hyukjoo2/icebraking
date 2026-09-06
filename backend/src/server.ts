@@ -5,12 +5,15 @@ import { getMatches, getProfile, toPublicParticipant, type Participant } from ".
 import {
   clearParticipants,
   getStoreHealth,
+  isMatchingStarted,
   listParticipants,
   saveParticipant,
+  startMatching,
 } from "./session-store.js";
 
 const app = express();
 const port = Number(process.env.PORT ?? 4000);
+const adminName = "이혁주";
 const defaultAllowedOrigins = [
   "http://localhost:3000",
   "https://icebraking-frontend.vercel.app",
@@ -49,7 +52,10 @@ app.get("/health", async (_request, response, next) => {
 app.get("/api/participants", async (_request, response, next) => {
   try {
     const participants = await listParticipants();
-    response.json({ participants: participants.map(toPublicParticipant) });
+    response.json({
+      matchingStarted: await isMatchingStarted(),
+      participants: participants.map(toPublicParticipant),
+    });
   } catch (error) {
     next(error);
   }
@@ -84,6 +90,8 @@ app.post("/api/participants", async (request, response, next) => {
     response.json({
       participant,
       profile: getProfile(participant),
+      isAdmin: participant.name === adminName,
+      matchingStarted: await isMatchingStarted(),
       participants: participants.map(toPublicParticipant),
     });
   } catch (error) {
@@ -91,17 +99,41 @@ app.post("/api/participants", async (request, response, next) => {
   }
 });
 
-app.delete("/api/participants", async (_request, response, next) => {
+app.delete("/api/participants", async (request, response, next) => {
   try {
-    if (process.env.NODE_ENV === "production") {
-      response
-        .status(403)
-        .json({ message: "프로덕션에서는 관리자 기능으로 분리해 주세요." });
+    const participantId = String(request.query.participantId ?? "");
+    const participants = await listParticipants();
+    const requester = participants.find(
+      (participant) => participant.id === participantId,
+    );
+
+    if (requester?.name !== adminName) {
+      response.status(403).json({ message: "관리자만 초기화할 수 있습니다." });
       return;
     }
 
     await clearParticipants();
-    response.json({ participants: [] });
+    response.json({ matchingStarted: false, participants: [] });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/session/matching", async (request, response, next) => {
+  try {
+    const participantId = String(request.body?.participantId ?? "");
+    const participants = await listParticipants();
+    const requester = participants.find(
+      (participant) => participant.id === participantId,
+    );
+
+    if (requester?.name !== adminName) {
+      response.status(403).json({ message: "관리자만 매칭을 시작할 수 있습니다." });
+      return;
+    }
+
+    await startMatching();
+    response.json({ matchingStarted: true });
   } catch (error) {
     next(error);
   }
@@ -118,6 +150,21 @@ app.get("/api/matches", async (request, response, next) => {
       return;
     }
 
+    const matchingStarted = await isMatchingStarted();
+    if (!matchingStarted) {
+      response.json({
+        profile: getProfile(me),
+        matchingStarted,
+        matches: {
+          best: null,
+          noble: null,
+          rightHand: null,
+          tuneUp: null,
+        },
+      });
+      return;
+    }
+
     const matches = getMatches(me, participants);
     const mapMatch = (key: keyof typeof matches) => {
       const match = matches[key];
@@ -130,6 +177,7 @@ app.get("/api/matches", async (request, response, next) => {
 
     response.json({
       profile: getProfile(me),
+      matchingStarted,
       matches: {
         best: mapMatch("best"),
         noble: mapMatch("noble"),
