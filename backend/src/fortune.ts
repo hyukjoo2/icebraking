@@ -137,13 +137,34 @@ export function getMatches(me: Participant, participants: Participant[]) {
     }))
     .sort((a, b) => b.score - a.score);
 
-  const best = others[0];
-  const rightHand = others.find((match) => match.score < 90) ?? others[1] ?? best;
-  const noble = others.find((match) => {
+  const usedParticipantIds = new Set<string>();
+  const pick = (
+    candidate:
+      | {
+          participant: Participant;
+          score: number;
+        }
+      | undefined,
+  ) => {
+    if (!candidate || usedParticipantIds.has(candidate.participant.id)) {
+      return undefined;
+    }
+
+    usedParticipantIds.add(candidate.participant.id);
+    return candidate;
+  };
+  const available = () =>
+    others.filter((match) => !usedParticipantIds.has(match.participant.id));
+
+  const best = pick(others[0]);
+  const noble = pick(available().find((match) => {
     const profile = getProfile(match.participant);
     return compatibility[profile.element].includes(getProfile(me).element);
-  }) ?? best;
-  const tuneUp = [...others].reverse()[0];
+  }) ?? available()[0]);
+  const rightHand = pick(
+    available().find((match) => match.score < 90) ?? available()[0],
+  );
+  const tuneUp = pick([...available()].reverse()[0]);
 
   return {
     best,
