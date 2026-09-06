@@ -6,10 +6,8 @@ type Store = {
   participants: Participant[];
 };
 
-const SESSION_ID = process.env.ICEBREAKING_SESSION_ID ?? "default";
-const SESSION_TTL_SECONDS = Number(
-  process.env.ICEBREAKING_SESSION_TTL_SECONDS ?? 60 * 60 * 6,
-);
+const SESSION_ID = "local-monthly";
+const SESSION_TTL_SECONDS = 21600;
 const REDIS_READY =
   Boolean(process.env.UPSTASH_REDIS_REST_URL) &&
   Boolean(process.env.UPSTASH_REDIS_REST_TOKEN);

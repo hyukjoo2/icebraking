@@ -17,10 +17,6 @@ services:
         sync: false
       - key: UPSTASH_REDIS_REST_TOKEN
         sync: false
-      - key: ICEBREAKING_SESSION_ID
-        value: monthly
-      - key: ICEBREAKING_SESSION_TTL_SECONDS
-        value: 21600
 
   - type: web
     name: icebreaking-frontend

@@ -67,7 +67,9 @@ const birthDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ??
-  (process.env.NODE_ENV === "development" ? "http://localhost:4000" : "");
+  (process.env.NODE_ENV === "development"
+    ? "http://localhost:4000"
+    : "https://icebraking-backend.onrender.com");
 
 function apiUrl(path: string) {
   if (!apiBaseUrl) return path;
