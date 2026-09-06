@@ -101,9 +101,22 @@ export default function Home() {
   const [isAdminActionRunning, setIsAdminActionRunning] = useState(false);
   const [error, setError] = useState("");
 
+  async function refreshMatches(participantId: string) {
+    const matchesResponse = await fetch(
+      apiUrl(`/api/matches?participantId=${participantId}`),
+      { cache: "no-store" },
+    );
+    if (!matchesResponse.ok) return;
+
+    const matchesData = await readJson(matchesResponse);
+    setProfile(matchesData.profile);
+    setMatches(matchesData.matches);
+    setMatchingStarted(Boolean(matchesData.matchingStarted));
+  }
+
   useEffect(() => {
-    const storedId = window.localStorage.getItem("icebreaking-participant-id");
     async function load() {
+      const storedId = window.localStorage.getItem("icebreaking-participant-id");
       const response = await fetch(apiUrl("/api/participants"), {
         cache: "no-store",
       });
@@ -113,15 +126,7 @@ export default function Home() {
       setMatchingStarted(Boolean(data.matchingStarted));
       if (!storedId) return;
 
-      const matchesResponse = await fetch(
-        apiUrl(`/api/matches?participantId=${storedId}`),
-        { cache: "no-store" },
-      );
-      if (!matchesResponse.ok) return;
-      const matchesData = await readJson(matchesResponse);
-      setProfile(matchesData.profile);
-      setMatches(matchesData.matches);
-      setMatchingStarted(Boolean(matchesData.matchingStarted));
+      await refreshMatches(storedId);
     }
     load();
     const timer = window.setInterval(load, 3000);
@@ -175,15 +180,7 @@ export default function Home() {
       setParticipants(data.participants);
       setMatchingStarted(Boolean(data.matchingStarted));
 
-      const matchesResponse = await fetch(
-        apiUrl(`/api/matches?participantId=${data.participant.id}`),
-        { cache: "no-store" },
-      );
-      if (matchesResponse.ok) {
-        const matchesData = await readJson(matchesResponse);
-        setMatches(matchesData.matches);
-        setMatchingStarted(Boolean(matchesData.matchingStarted));
-      }
+      await refreshMatches(data.participant.id);
     } catch {
       setError("백엔드 서버에 연결할 수 없습니다. npm run dev:backend를 확인해 주세요.");
     } finally {
@@ -222,6 +219,7 @@ export default function Home() {
       }
 
       setMatchingStarted(Boolean(data.matchingStarted));
+      await refreshMatches(me.id);
     } catch {
       setError("매칭 시작 요청에 실패했습니다.");
     } finally {
