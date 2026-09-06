@@ -1,3 +1,4 @@
+import "./env.js";
 import { Redis } from "@upstash/redis";
 import type { Participant } from "./fortune.js";
 
@@ -78,4 +79,29 @@ export async function clearParticipants() {
   }
 
   await redis.del(sessionKey());
+}
+
+export async function getStoreHealth() {
+  if (!redis) {
+    return {
+      mode: "memory",
+      redisConfigured: false,
+      redisConnected: false,
+    };
+  }
+
+  try {
+    await redis.ping();
+    return {
+      mode: "redis",
+      redisConfigured: true,
+      redisConnected: true,
+    };
+  } catch {
+    return {
+      mode: "redis",
+      redisConfigured: true,
+      redisConnected: false,
+    };
+  }
 }

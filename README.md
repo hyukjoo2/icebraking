@@ -73,6 +73,19 @@ ICEBREAKING_SESSION_TTL_SECONDS=21600
 
 프론트엔드와 백엔드를 서로 다른 도메인에 배포하는 경우 `NEXT_PUBLIC_API_BASE_URL`에는 백엔드 URL을, `FRONTEND_ORIGIN`에는 프론트엔드 URL을 넣어 CORS를 맞춰야 합니다.
 
+## Render 배포
+
+`render.yaml`을 추가해두었습니다. Render Dashboard에서 Blueprint로 연결하면 `frontend`, `backend` 두 서비스를 만들 수 있습니다.
+
+기존 Render 서비스를 교체할 때는 새 서비스를 먼저 만든 뒤 아래 값을 연결하고, 동작 확인 후 기존 서비스를 삭제하는 편이 안전합니다.
+
+```text
+backend FRONTEND_ORIGIN=https://프론트엔드주소
+backend UPSTASH_REDIS_REST_URL=...
+backend UPSTASH_REDIS_REST_TOKEN=...
+frontend NEXT_PUBLIC_API_BASE_URL=https://백엔드주소
+```
+
 ## 운영 메모
 
 로컬에서 Redis 환경변수가 없으면 Next.js 서버 프로세스 메모리에 세션을 저장합니다. 단일 Node 서버에서는 테스트 가능하지만, 서버리스나 여러 인스턴스에서는 참가자 목록이 분산될 수 있습니다. 웹에 올려 실제 회의에서 쓸 때는 Upstash Redis 환경변수를 꼭 설정하세요.

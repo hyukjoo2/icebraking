@@ -1,9 +1,10 @@
-import "dotenv/config";
 import cors from "cors";
 import express from "express";
+import "./env.js";
 import { getMatches, getProfile, toPublicParticipant, type Participant } from "./fortune.js";
 import {
   clearParticipants,
+  getStoreHealth,
   listParticipants,
   saveParticipant,
 } from "./session-store.js";
@@ -20,8 +21,12 @@ app.use(
   }),
 );
 
-app.get("/health", (_request, response) => {
-  response.json({ ok: true });
+app.get("/health", async (_request, response, next) => {
+  try {
+    response.json({ ok: true, store: await getStoreHealth() });
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.get("/api/participants", async (_request, response, next) => {
@@ -132,6 +137,6 @@ app.use(
   },
 );
 
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
   console.log(`Icebreaking backend listening on http://localhost:${port}`);
 });
