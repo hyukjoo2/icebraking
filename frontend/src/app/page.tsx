@@ -115,6 +115,17 @@ export default function Home() {
   const [isAdminActionRunning, setIsAdminActionRunning] = useState(false);
   const [error, setError] = useState("");
 
+  function clearLocalSession() {
+    window.localStorage.removeItem("icebreaking-participant-id");
+    setMe(null);
+    setProfile(null);
+    setMatches(null);
+    setMatchingStarted(false);
+    setLadder(null);
+    setIsLadderModalOpen(false);
+    setParticipants([]);
+  }
+
   async function refreshMatches(participantId: string) {
     const matchesResponse = await fetch(
       apiUrl(`/api/matches?participantId=${participantId}`),
@@ -141,6 +152,14 @@ export default function Home() {
       setMatchingStarted(Boolean(data.matchingStarted));
       setLadder(data.ladder ?? null);
       if (!storedId) return;
+
+      const isStillInSession = data.participants.some(
+        (participant: PublicParticipant) => participant.id === storedId,
+      );
+      if (!isStillInSession) {
+        clearLocalSession();
+        return;
+      }
 
       await refreshMatches(storedId);
     }
@@ -217,14 +236,7 @@ export default function Home() {
     await fetch(apiUrl(`/api/participants?participantId=${me.id}`), {
       method: "DELETE",
     });
-    window.localStorage.removeItem("icebreaking-participant-id");
-    setMe(null);
-    setProfile(null);
-    setMatches(null);
-    setMatchingStarted(false);
-    setLadder(null);
-    setIsLadderModalOpen(false);
-    setParticipants([]);
+    clearLocalSession();
     setIsAdminActionRunning(false);
   }
 
