@@ -577,10 +577,11 @@ function LadderGame({
       color: getLadderColor(index),
       person,
       points: points.join(" "),
-      result: bottomLabels[column] ?? "빈 칸",
+      result: bottomLabels[column] ?? "탈락",
     };
   });
-  const resultGroups = bottomLabels
+  const resultGroups = [
+    ...bottomLabels
     .filter((label, index, labels): label is string =>
       Boolean(label) && labels.indexOf(label) === index,
     )
@@ -589,7 +590,14 @@ function LadderGame({
       people: paths
         .filter((path) => path.result === label)
         .map((path) => path.person.name),
-    }));
+    })),
+    {
+      label: "탈락",
+      people: paths
+        .filter((path) => path.result === "탈락")
+        .map((path) => path.person.name),
+    },
+  ];
 
   return (
     <div className="ladder-panel">
@@ -682,7 +690,7 @@ function LadderGame({
                 className={label ? "winner-label" : ""}
                 style={{ left: xFor(index) }}
               >
-                {label ?? "-"}
+                {label ?? "탈락"}
               </span>
             ))}
           </div>
@@ -721,15 +729,19 @@ function normalizeLadderBottom(
     return Array.from({ length: columnCount }, () => null);
   }
 
-  if (bottom.length === columnCount && bottom.every(Boolean)) return bottom;
+  if (bottom.length === columnCount) return bottom;
 
   const normalized: Array<string | null> = Array.from(
     { length: columnCount },
     () => null,
   );
 
-  normalized.forEach((_, index) => {
-    normalized[index] = labels[index % labels.length];
+  labels.forEach((label, index) => {
+    const position =
+      labels.length === 1
+        ? Math.floor(columnCount / 2)
+        : Math.round((index * (columnCount - 1)) / (labels.length - 1));
+    normalized[position] = label;
   });
 
   return normalized;
