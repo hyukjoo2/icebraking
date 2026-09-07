@@ -260,6 +260,14 @@ select:focus {
   grid-template-columns: minmax(0, 1fr) minmax(340px, 0.86fr);
 }
 
+.dashboard-ladder {
+  max-width: min(1760px, calc(100vw - 56px));
+}
+
+.dashboard-ladder .match-panel {
+  grid-column: 1 / -1;
+}
+
 .profile-panel,
 .match-panel,
 .people {
@@ -561,7 +569,7 @@ select:focus {
 }
 
 .ladder-panel {
-  min-height: 540px;
+  min-height: 640px;
 }
 
 .ladder-copy {
@@ -597,13 +605,14 @@ select:focus {
 .ladder-scroll {
   overflow-x: auto;
   padding-bottom: 8px;
+  scrollbar-gutter: stable;
 }
 
 .ladder-board {
   background: #fffdf8;
   border: 1px solid var(--line);
   border-radius: 8px;
-  min-height: 520px;
+  min-height: 610px;
   position: relative;
 }
 
@@ -620,7 +629,7 @@ select:focus {
   display: block;
   font-size: 13px;
   font-weight: 900;
-  max-width: 76px;
+  max-width: 96px;
   overflow: hidden;
   padding: 7px 9px;
   position: absolute;
@@ -635,7 +644,7 @@ select:focus {
 }
 
 .bottom-labels {
-  top: 394px;
+  top: 494px;
 }
 
 .bottom-labels span {
@@ -656,7 +665,7 @@ select:focus {
 
 .ladder-svg {
   display: block;
-  height: 430px;
+  height: 530px;
   margin-top: 40px;
   overflow: visible;
   width: 100%;

@@ -384,7 +384,7 @@ export default function Home() {
           </form>
         </section>
       ) : (
-        <section className="dashboard">
+        <section className={ladder ? "dashboard dashboard-ladder" : "dashboard"}>
           <div className="profile-panel">
             <div className="profile-head">
               <div>
@@ -512,9 +512,9 @@ function LadderGame({
   onStart: () => void;
 }) {
   const columnCount = Math.max(ladder.top.length, ladder.bottom.length, 1);
-  const width = Math.max(720, columnCount * 92);
-  const topY = 68;
-  const bottomY = 380;
+  const width = Math.max(960, columnCount * 116);
+  const topY = 72;
+  const bottomY = 480;
   const leftPadding = 52;
   const gap = columnCount > 1 ? (width - leftPadding * 2) / (columnCount - 1) : 0;
   const xFor = (column: number) => leftPadding + column * gap;
@@ -580,7 +580,7 @@ function LadderGame({
 
           <svg
             className={ladder.started ? "ladder-svg started" : "ladder-svg"}
-            viewBox={`0 0 ${width} 430`}
+            viewBox={`0 0 ${width} 530`}
             role="img"
             aria-label="사다리 게임 경로"
           >
