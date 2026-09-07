@@ -64,6 +64,17 @@ type MatchResult = {
 
 type Matches = Record<MatchKey, MatchResult | null>;
 
+type LadderState = {
+  top: PublicParticipant[];
+  bottom: Array<string | null>;
+  rungs: Array<{
+    level: number;
+    left: number;
+  }>;
+  started: boolean;
+  createdAt: number;
+};
+
 const birthDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
 const apiBaseUrl = "https://icebraking.onrender.com";
@@ -98,6 +109,7 @@ export default function Home() {
   const [participants, setParticipants] = useState<PublicParticipant[]>([]);
   const [matches, setMatches] = useState<Matches | null>(null);
   const [matchingStarted, setMatchingStarted] = useState(false);
+  const [ladder, setLadder] = useState<LadderState | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAdminActionRunning, setIsAdminActionRunning] = useState(false);
   const [error, setError] = useState("");
@@ -113,6 +125,7 @@ export default function Home() {
     setProfile(matchesData.profile);
     setMatches(matchesData.matches);
     setMatchingStarted(Boolean(matchesData.matchingStarted));
+    setLadder(matchesData.ladder ?? null);
   }
 
   useEffect(() => {
@@ -125,6 +138,7 @@ export default function Home() {
       const data = await readJson(response);
       setParticipants(data.participants);
       setMatchingStarted(Boolean(data.matchingStarted));
+      setLadder(data.ladder ?? null);
       if (!storedId) return;
 
       await refreshMatches(storedId);
@@ -180,6 +194,7 @@ export default function Home() {
       setProfile(data.profile);
       setParticipants(data.participants);
       setMatchingStarted(Boolean(data.matchingStarted));
+      setLadder(data.ladder ?? null);
 
       await refreshMatches(data.participant.id);
     } catch {
@@ -200,6 +215,7 @@ export default function Home() {
     setProfile(null);
     setMatches(null);
     setMatchingStarted(false);
+    setLadder(null);
     setParticipants([]);
     setIsAdminActionRunning(false);
   }
@@ -223,6 +239,52 @@ export default function Home() {
       await refreshMatches(me.id);
     } catch {
       setError("매칭 시작 요청에 실패했습니다.");
+    } finally {
+      setIsAdminActionRunning(false);
+    }
+  }
+
+  async function createLadderSession() {
+    if (!me) return;
+    setIsAdminActionRunning(true);
+    try {
+      const response = await fetch(apiUrl("/api/session/ladder"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ participantId: me.id }),
+      });
+      const data = await readJson(response);
+      if (!response.ok) {
+        setError(data.message ?? "사다리를 만들 수 없습니다.");
+        return;
+      }
+
+      setLadder(data.ladder);
+    } catch {
+      setError("사다리 생성 요청에 실패했습니다.");
+    } finally {
+      setIsAdminActionRunning(false);
+    }
+  }
+
+  async function startLadderSession() {
+    if (!me) return;
+    setIsAdminActionRunning(true);
+    try {
+      const response = await fetch(apiUrl("/api/session/ladder/start"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ participantId: me.id }),
+      });
+      const data = await readJson(response);
+      if (!response.ok) {
+        setError(data.message ?? "사다리를 시작할 수 없습니다.");
+        return;
+      }
+
+      setLadder(data.ladder);
+    } catch {
+      setError("사다리 시작 요청에 실패했습니다.");
     } finally {
       setIsAdminActionRunning(false);
     }
@@ -355,38 +417,49 @@ export default function Home() {
           </div>
 
           <div className="match-panel">
-            <div className="match-panel-head">
-              <p className="eyebrow">오늘의 관계 지도</p>
-              <h2>5가지 매칭</h2>
-            </div>
-
-            {!matchingStarted ? (
-              <div className="empty">
-                <h2>매칭 대기 중</h2>
-                <p>모든 참가자가 입장한 뒤 관리자가 매칭을 시작합니다.</p>
-              </div>
-            ) : matchItems.some((item) => item.match) ? (
-              <div className="match-wheel">
-                <div className="match-core">
-                  <span>{me.name}</span>
-                  <strong>ME</strong>
-                </div>
-                {matchItems.map((item) => (
-                  <article
-                    key={item.key}
-                    className={`radial-card radial-card-${item.key}`}
-                  >
-                    <p>{item.label}</p>
-                    <h3>{item.match?.participant.name ?? "대기 중"}</h3>
-                    <div>{item.match?.score ?? "--"}</div>
-                  </article>
-                ))}
-              </div>
+            {ladder ? (
+              <LadderGame
+                isAdmin={me.name === "이혁주"}
+                isBusy={isAdminActionRunning}
+                ladder={ladder}
+                onStart={startLadderSession}
+              />
             ) : (
-              <div className="empty">
-                <h2>조금만 더 기다려 주세요.</h2>
-                <p>두 명 이상 입장하면 매칭 결과가 열립니다.</p>
-              </div>
+              <>
+                <div className="match-panel-head">
+                  <p className="eyebrow">오늘의 관계 지도</p>
+                  <h2>5가지 매칭</h2>
+                </div>
+
+                {!matchingStarted ? (
+                  <div className="empty">
+                    <h2>매칭 대기 중</h2>
+                    <p>모든 참가자가 입장한 뒤 관리자가 매칭을 시작합니다.</p>
+                  </div>
+                ) : matchItems.some((item) => item.match) ? (
+                  <div className="match-wheel">
+                    <div className="match-core">
+                      <span>{me.name}</span>
+                      <strong>ME</strong>
+                    </div>
+                    {matchItems.map((item) => (
+                      <article
+                        key={item.key}
+                        className={`radial-card radial-card-${item.key}`}
+                      >
+                        <p>{item.label}</p>
+                        <h3>{item.match?.participant.name ?? "대기 중"}</h3>
+                        <div>{item.match?.score ?? "--"}</div>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty">
+                    <h2>조금만 더 기다려 주세요.</h2>
+                    <p>두 명 이상 입장하면 매칭 결과가 열립니다.</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -401,6 +474,13 @@ export default function Home() {
                     disabled={isAdminActionRunning || matchingStarted}
                   >
                     매칭 시작
+                  </button>
+                  <button
+                    className="admin-secondary"
+                    onClick={createLadderSession}
+                    disabled={isAdminActionRunning}
+                  >
+                    NEXT
                   </button>
                   <button onClick={resetSession} disabled={isAdminActionRunning}>
                     캐시 초기화
@@ -417,6 +497,128 @@ export default function Home() {
         </section>
       )}
     </main>
+  );
+}
+
+function LadderGame({
+  isAdmin,
+  isBusy,
+  ladder,
+  onStart,
+}: {
+  isAdmin: boolean;
+  isBusy: boolean;
+  ladder: LadderState;
+  onStart: () => void;
+}) {
+  const columnCount = Math.max(ladder.top.length, 1);
+  const width = Math.max(720, columnCount * 92);
+  const topY = 68;
+  const bottomY = 380;
+  const leftPadding = 52;
+  const gap = columnCount > 1 ? (width - leftPadding * 2) / (columnCount - 1) : 0;
+  const xFor = (column: number) => leftPadding + column * gap;
+  const yFor = (level: number) =>
+    topY + ((level + 1) * (bottomY - topY)) / 15;
+
+  const paths = ladder.top.map((person, index) => {
+    let column = index;
+    const points = [`${xFor(column)},${topY}`];
+
+    [...ladder.rungs]
+      .sort((a, b) => a.level - b.level)
+      .forEach((rung) => {
+        const y = yFor(rung.level);
+        if (column === rung.left) {
+          points.push(`${xFor(column)},${y}`, `${xFor(column + 1)},${y}`);
+          column += 1;
+        } else if (column === rung.left + 1) {
+          points.push(`${xFor(column)},${y}`, `${xFor(column - 1)},${y}`);
+          column -= 1;
+        }
+      });
+
+    points.push(`${xFor(column)},${bottomY}`);
+    return {
+      column,
+      person,
+      points: points.join(" "),
+    };
+  });
+
+  return (
+    <div className="ladder-panel">
+      <div className="match-panel-head">
+        <p className="eyebrow">NEXT</p>
+        <h2>사다리 게임</h2>
+      </div>
+      <div className="ladder-copy">
+        <p>위쪽은 김기현, 김경순, 송명훈을 제외한 참가자입니다.</p>
+        {isAdmin ? (
+          <button onClick={onStart} disabled={isBusy || ladder.started}>
+            {ladder.started ? "진행 중" : "시작"}
+          </button>
+        ) : null}
+      </div>
+
+      <div className="ladder-scroll">
+        <div className="ladder-board" style={{ minWidth: width }}>
+          <div className="ladder-labels top-labels">
+            {ladder.top.map((person, index) => (
+              <span key={person.id} style={{ left: xFor(index) }}>
+                {person.name}
+              </span>
+            ))}
+          </div>
+
+          <svg
+            className={ladder.started ? "ladder-svg started" : "ladder-svg"}
+            viewBox={`0 0 ${width} 430`}
+            role="img"
+            aria-label="사다리 게임 경로"
+          >
+            {ladder.top.map((person, index) => (
+              <line
+                key={person.id}
+                x1={xFor(index)}
+                x2={xFor(index)}
+                y1={topY}
+                y2={bottomY}
+              />
+            ))}
+            {ladder.rungs.map((rung, index) => (
+              <line
+                key={`${rung.level}-${rung.left}-${index}`}
+                x1={xFor(rung.left)}
+                x2={xFor(rung.left + 1)}
+                y1={yFor(rung.level)}
+                y2={yFor(rung.level)}
+              />
+            ))}
+            {paths.map((path, index) => (
+              <polyline
+                key={path.person.id}
+                className="runner-path"
+                points={path.points}
+                style={{ animationDelay: `${index * 0.08}s` }}
+              />
+            ))}
+          </svg>
+
+          <div className="ladder-labels bottom-labels">
+            {ladder.bottom.map((label, index) => (
+              <span
+                key={`${label ?? "empty"}-${index}`}
+                className={label ? "winner-label" : ""}
+                style={{ left: xFor(index) }}
+              >
+                {label ?? "-"}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

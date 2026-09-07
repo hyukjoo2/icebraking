@@ -549,9 +549,141 @@ select:focus {
   color: #fff;
 }
 
+.admin-actions .admin-secondary {
+  background: var(--mustard);
+  border-color: var(--mustard);
+  color: #fff;
+}
+
 .admin-actions button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+.ladder-panel {
+  min-height: 540px;
+}
+
+.ladder-copy {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  margin: 14px 0 18px;
+}
+
+.ladder-copy p {
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+.ladder-copy button {
+  background: var(--teal);
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  flex: 0 0 auto;
+  font-weight: 900;
+  min-height: 42px;
+  padding: 0 18px;
+}
+
+.ladder-copy button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.ladder-scroll {
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.ladder-board {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  min-height: 520px;
+  position: relative;
+}
+
+.ladder-labels {
+  inset-inline: 0;
+  position: absolute;
+}
+
+.ladder-labels span {
+  background: #eef5f3;
+  border: 1px solid #d5e7e3;
+  border-radius: 999px;
+  color: #285b55;
+  display: block;
+  font-size: 13px;
+  font-weight: 900;
+  max-width: 76px;
+  overflow: hidden;
+  padding: 7px 9px;
+  position: absolute;
+  text-align: center;
+  text-overflow: ellipsis;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.top-labels {
+  top: 14px;
+}
+
+.bottom-labels {
+  top: 394px;
+}
+
+.bottom-labels span {
+  background: #f3efe7;
+  border-color: #ded5c4;
+  color: var(--muted);
+}
+
+.bottom-labels .winner-label {
+  background: #fff8ec;
+  border-color: #ead8b7;
+  color: #815d12;
+}
+
+.ladder-svg {
+  display: block;
+  height: 430px;
+  margin-top: 40px;
+  overflow: visible;
+  width: 100%;
+}
+
+.ladder-svg line {
+  stroke: rgba(30, 34, 40, 0.28);
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+
+.runner-path {
+  fill: none;
+  opacity: 0;
+  stroke: var(--coral);
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 5;
+}
+
+.ladder-svg.started .runner-path {
+  animation: ladder-run 2.4s ease-out forwards;
+  opacity: 0.9;
+}
+
+@keyframes ladder-run {
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 .people-list {
@@ -621,6 +753,15 @@ select:focus {
   }
 
   .radial-card {
+    width: 100%;
+  }
+
+  .ladder-copy {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ladder-copy button {
     width: 100%;
   }
 }

@@ -4,10 +4,13 @@ import "./env.js";
 import { getMatches, getProfile, toPublicParticipant, type Participant } from "./fortune.js";
 import {
   clearParticipants,
+  createAndSaveLadder,
+  getLadder,
   getStoreHealth,
   isMatchingStarted,
   listParticipants,
   saveParticipant,
+  startLadder,
   startMatching,
 } from "./session-store.js";
 
@@ -53,6 +56,7 @@ app.get("/api/participants", async (_request, response, next) => {
   try {
     const participants = await listParticipants();
     response.json({
+      ladder: await getLadder(),
       matchingStarted: await isMatchingStarted(),
       participants: participants.map(toPublicParticipant),
     });
@@ -91,6 +95,7 @@ app.post("/api/participants", async (request, response, next) => {
       participant,
       profile: getProfile(participant),
       isAdmin: participant.name === adminName,
+      ladder: await getLadder(),
       matchingStarted: await isMatchingStarted(),
       participants: participants.map(toPublicParticipant),
     });
@@ -113,7 +118,18 @@ app.delete("/api/participants", async (request, response, next) => {
     }
 
     await clearParticipants();
-    response.json({ matchingStarted: false, participants: [] });
+    response.json({ ladder: null, matchingStarted: false, participants: [] });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/session", async (_request, response, next) => {
+  try {
+    response.json({
+      ladder: await getLadder(),
+      matchingStarted: await isMatchingStarted(),
+    });
   } catch (error) {
     next(error);
   }
@@ -139,6 +155,50 @@ app.post("/api/session/matching", async (request, response, next) => {
   }
 });
 
+app.post("/api/session/ladder", async (request, response, next) => {
+  try {
+    const participantId = String(request.body?.participantId ?? "");
+    const participants = await listParticipants();
+    const requester = participants.find(
+      (participant) => participant.id === participantId,
+    );
+
+    if (requester?.name !== adminName) {
+      response.status(403).json({ message: "관리자만 사다리를 만들 수 있습니다." });
+      return;
+    }
+
+    response.json({ ladder: await createAndSaveLadder(participants) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/session/ladder/start", async (request, response, next) => {
+  try {
+    const participantId = String(request.body?.participantId ?? "");
+    const participants = await listParticipants();
+    const requester = participants.find(
+      (participant) => participant.id === participantId,
+    );
+
+    if (requester?.name !== adminName) {
+      response.status(403).json({ message: "관리자만 사다리를 시작할 수 있습니다." });
+      return;
+    }
+
+    const ladder = await startLadder();
+    if (!ladder) {
+      response.status(404).json({ message: "사다리가 아직 생성되지 않았습니다." });
+      return;
+    }
+
+    response.json({ ladder });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/api/matches", async (request, response, next) => {
   try {
     const participantId = String(request.query.participantId ?? "");
@@ -154,6 +214,7 @@ app.get("/api/matches", async (request, response, next) => {
     if (!matchingStarted) {
       response.json({
         profile: getProfile(me),
+        ladder: await getLadder(),
         matchingStarted,
         matches: {
           best: null,
@@ -178,6 +239,7 @@ app.get("/api/matches", async (request, response, next) => {
 
     response.json({
       profile: getProfile(me),
+      ladder: await getLadder(),
       matchingStarted,
       matches: {
         best: mapMatch("best"),
