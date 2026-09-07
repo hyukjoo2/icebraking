@@ -715,9 +715,8 @@ select:focus {
 .runner-path {
   fill: none;
   opacity: 0;
-  stroke: var(--coral);
-  stroke-dasharray: 900;
-  stroke-dashoffset: 900;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 5;
@@ -732,6 +731,48 @@ select:focus {
   to {
     stroke-dashoffset: 0;
   }
+}
+
+.ladder-results {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-top: 18px;
+}
+
+.ladder-result-item {
+  align-items: center;
+  background: #f7f4ed;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 12px minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 42px;
+  padding: 8px 10px;
+}
+
+.ladder-color-dot {
+  border-radius: 50%;
+  height: 12px;
+  width: 12px;
+}
+
+.ladder-result-item strong,
+.ladder-result-item span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ladder-result-item strong {
+  color: var(--ink);
+}
+
+.ladder-result-item span:last-child {
+  color: var(--muted);
+  font-weight: 800;
+  text-align: right;
 }
 
 .people-list {

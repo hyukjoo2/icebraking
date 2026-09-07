@@ -562,8 +562,10 @@ function LadderGame({
     points.push(`${xFor(column)},${bottomY}`);
     return {
       column,
+      color: getLadderColor(index),
       person,
       points: points.join(" "),
+      result: bottomLabels[column] ?? "빈 칸",
     };
   });
 
@@ -628,7 +630,11 @@ function LadderGame({
                 key={path.person.id}
                 className="runner-path"
                 points={path.points}
-                style={{ animationDelay: `${index * 0.08}s` }}
+                pathLength={100}
+                style={{
+                  animationDelay: `${index * 0.08}s`,
+                  stroke: path.color,
+                }}
               />
             ))}
           </svg>
@@ -646,8 +652,28 @@ function LadderGame({
           </div>
         </div>
       </div>
+
+      {ladder.started ? (
+        <div className="ladder-results">
+          {paths.map((path) => (
+            <div key={path.person.id} className="ladder-result-item">
+              <span
+                className="ladder-color-dot"
+                style={{ background: path.color }}
+              />
+              <strong>{path.person.name}</strong>
+              <span>{path.result}</span>
+            </div>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
+}
+
+function getLadderColor(index: number) {
+  const hue = (index * 137.508) % 360;
+  return `hsl(${hue.toFixed(1)} 72% 43%)`;
 }
 
 function normalizeLadderBottom(
