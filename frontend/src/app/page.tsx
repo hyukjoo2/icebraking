@@ -598,6 +598,7 @@ function LadderGame({
         .map((path) => path.person.name),
     },
   ];
+  const winningPaths = paths.filter((path) => path.result !== "탈락");
 
   return (
     <div className="ladder-panel">
@@ -669,7 +670,7 @@ function LadderGame({
                 y2={yFor(rung.level)}
               />
             ))}
-            {paths.map((path, index) => (
+            {winningPaths.map((path, index) => (
               <polyline
                 key={path.person.id}
                 className="runner-path"
