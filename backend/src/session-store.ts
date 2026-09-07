@@ -183,14 +183,38 @@ export function createLadder(participants: Participant[]) {
       bottom[position] = targetNames[index];
     });
 
-  const levelCount = Math.max(8, Math.min(14, columnCount + 4));
+  const levelCount = Math.max(12, Math.min(24, columnCount + 8));
   const rungs: LadderState["rungs"] = [];
+  const rungsByLevel = Array.from({ length: levelCount }, () => new Set<number>());
+
+  const canPlaceRung = (level: number, left: number) => {
+    const columns = rungsByLevel[level];
+    return (
+      !columns.has(left - 1) &&
+      !columns.has(left) &&
+      !columns.has(left + 1)
+    );
+  };
+
+  const placeRung = (level: number, left: number) => {
+    rungsByLevel[level].add(left);
+    rungs.push({ level, left });
+  };
+
+  for (let left = 0; left < columnCount - 1; left += 1) {
+    const level = shuffle(Array.from({ length: levelCount }, (_, index) => index))
+      .find((candidate) => canPlaceRung(candidate, left));
+
+    if (level !== undefined) {
+      placeRung(level, left);
+    }
+  }
 
   for (let level = 0; level < levelCount; level += 1) {
     let column = 0;
     while (column < columnCount - 1) {
-      if (Math.random() < 0.34) {
-        rungs.push({ level, left: column });
+      if (Math.random() < 0.28 && canPlaceRung(level, column)) {
+        placeRung(level, column);
         column += 2;
       } else {
         column += 1;
@@ -201,7 +225,7 @@ export function createLadder(participants: Participant[]) {
   return {
     top,
     bottom,
-    rungs,
+    rungs: rungs.sort((a, b) => a.level - b.level || a.left - b.left),
     started: false,
     createdAt: Date.now(),
   } satisfies LadderState;
