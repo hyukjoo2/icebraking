@@ -670,17 +670,16 @@ function LadderGame({
                 y2={yFor(rung.level)}
               />
             ))}
-            {winningPaths.map((path, index) => (
-              <polyline
-                key={path.person.id}
-                className="runner-path"
-                points={path.points}
-                style={{
-                  animationDelay: `${index * 0.08}s`,
-                  stroke: path.color,
-                }}
-              />
-            ))}
+            {ladder.started
+              ? winningPaths.map((path) => (
+                  <polyline
+                    key={path.person.id}
+                    className="runner-path"
+                    points={path.points}
+                    style={{ stroke: path.color }}
+                  />
+                ))
+              : null}
           </svg>
 
           <div className="ladder-labels bottom-labels">

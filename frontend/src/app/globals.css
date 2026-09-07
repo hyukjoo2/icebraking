@@ -754,23 +754,10 @@ select:focus {
 
 .runner-path {
   fill: none;
-  opacity: 0;
-  stroke-dasharray: 5000;
-  stroke-dashoffset: 5000;
+  opacity: 0.92;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 5;
-}
-
-.ladder-svg.started .runner-path {
-  animation: ladder-run 2.4s ease-out forwards;
-  opacity: 0.9;
-}
-
-@keyframes ladder-run {
-  to {
-    stroke-dashoffset: 0;
-  }
+  stroke-width: 6;
 }
 
 .ladder-results {
