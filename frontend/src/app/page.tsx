@@ -110,6 +110,7 @@ export default function Home() {
   const [matches, setMatches] = useState<Matches | null>(null);
   const [matchingStarted, setMatchingStarted] = useState(false);
   const [ladder, setLadder] = useState<LadderState | null>(null);
+  const [isLadderModalOpen, setIsLadderModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAdminActionRunning, setIsAdminActionRunning] = useState(false);
   const [error, setError] = useState("");
@@ -147,6 +148,12 @@ export default function Home() {
     const timer = window.setInterval(load, 3000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (ladder) {
+      setIsLadderModalOpen(true);
+    }
+  }, [ladder?.createdAt]);
 
   const matchItems = (Object.keys(matchLabels) as MatchKey[]).map((key) => ({
     key,
@@ -216,6 +223,7 @@ export default function Home() {
     setMatches(null);
     setMatchingStarted(false);
     setLadder(null);
+    setIsLadderModalOpen(false);
     setParticipants([]);
     setIsAdminActionRunning(false);
   }
@@ -260,6 +268,7 @@ export default function Home() {
       }
 
       setLadder(data.ladder);
+      setIsLadderModalOpen(true);
     } catch {
       setError("사다리 생성 요청에 실패했습니다.");
     } finally {
@@ -283,6 +292,7 @@ export default function Home() {
       }
 
       setLadder(data.ladder);
+      setIsLadderModalOpen(true);
     } catch {
       setError("사다리 시작 요청에 실패했습니다.");
     } finally {
@@ -384,7 +394,7 @@ export default function Home() {
           </form>
         </section>
       ) : (
-        <section className={ladder ? "dashboard dashboard-ladder" : "dashboard"}>
+        <section className="dashboard">
           <div className="profile-panel">
             <div className="profile-head">
               <div>
@@ -417,49 +427,38 @@ export default function Home() {
           </div>
 
           <div className="match-panel">
-            {ladder ? (
-              <LadderGame
-                isAdmin={me.name === "이혁주"}
-                isBusy={isAdminActionRunning}
-                ladder={ladder}
-                onStart={startLadderSession}
-              />
-            ) : (
-              <>
-                <div className="match-panel-head">
-                  <p className="eyebrow">오늘의 관계 지도</p>
-                  <h2>5가지 매칭</h2>
-                </div>
+            <div className="match-panel-head">
+              <p className="eyebrow">오늘의 관계 지도</p>
+              <h2>5가지 매칭</h2>
+            </div>
 
-                {!matchingStarted ? (
-                  <div className="empty">
-                    <h2>매칭 대기 중</h2>
-                    <p>모든 참가자가 입장한 뒤 관리자가 매칭을 시작합니다.</p>
-                  </div>
-                ) : matchItems.some((item) => item.match) ? (
-                  <div className="match-wheel">
-                    <div className="match-core">
-                      <span>{me.name}</span>
-                      <strong>ME</strong>
-                    </div>
-                    {matchItems.map((item) => (
-                      <article
-                        key={item.key}
-                        className={`radial-card radial-card-${item.key}`}
-                      >
-                        <p>{item.label}</p>
-                        <h3>{item.match?.participant.name ?? "대기 중"}</h3>
-                        <div>{item.match?.score ?? "--"}</div>
-                      </article>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="empty">
-                    <h2>조금만 더 기다려 주세요.</h2>
-                    <p>두 명 이상 입장하면 매칭 결과가 열립니다.</p>
-                  </div>
-                )}
-              </>
+            {!matchingStarted ? (
+              <div className="empty">
+                <h2>매칭 대기 중</h2>
+                <p>모든 참가자가 입장한 뒤 관리자가 매칭을 시작합니다.</p>
+              </div>
+            ) : matchItems.some((item) => item.match) ? (
+              <div className="match-wheel">
+                <div className="match-core">
+                  <span>{me.name}</span>
+                  <strong>ME</strong>
+                </div>
+                {matchItems.map((item) => (
+                  <article
+                    key={item.key}
+                    className={`radial-card radial-card-${item.key}`}
+                  >
+                    <p>{item.label}</p>
+                    <h3>{item.match?.participant.name ?? "대기 중"}</h3>
+                    <div>{item.match?.score ?? "--"}</div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="empty">
+                <h2>조금만 더 기다려 주세요.</h2>
+                <p>두 명 이상 입장하면 매칭 결과가 열립니다.</p>
+              </div>
             )}
           </div>
 
@@ -496,6 +495,27 @@ export default function Home() {
           </aside>
         </section>
       )}
+
+      {ladder && isLadderModalOpen && me ? (
+        <div className="ladder-modal" role="dialog" aria-modal="true">
+          <div className="ladder-modal-panel">
+            <button
+              className="ladder-close"
+              type="button"
+              onClick={() => setIsLadderModalOpen(false)}
+              aria-label="사다리 닫기"
+            >
+              닫기
+            </button>
+            <LadderGame
+              isAdmin={me.name === "이혁주"}
+              isBusy={isAdminActionRunning}
+              ladder={ladder}
+              onStart={startLadderSession}
+            />
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }
