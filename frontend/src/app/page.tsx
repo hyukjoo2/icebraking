@@ -532,6 +532,7 @@ function LadderGame({
   onStart: () => void;
 }) {
   const columnCount = Math.max(ladder.top.length, ladder.bottom.length, 1);
+  const bottomLabels = normalizeLadderBottom(ladder.bottom, columnCount);
   const width = Math.max(960, columnCount * 116);
   const topY = 72;
   const bottomY = 480;
@@ -633,7 +634,7 @@ function LadderGame({
           </svg>
 
           <div className="ladder-labels bottom-labels">
-            {ladder.bottom.map((label, index) => (
+            {bottomLabels.map((label, index) => (
               <span
                 key={`${label ?? "empty"}-${index}`}
                 className={label ? "winner-label" : ""}
@@ -647,6 +648,29 @@ function LadderGame({
       </div>
     </div>
   );
+}
+
+function normalizeLadderBottom(
+  bottom: Array<string | null>,
+  columnCount: number,
+) {
+  if (bottom.length === columnCount) return bottom;
+
+  const labels = bottom.filter((label): label is string => Boolean(label));
+  const normalized: Array<string | null> = Array.from(
+    { length: columnCount },
+    () => null,
+  );
+
+  labels.forEach((label, index) => {
+    const position =
+      labels.length === 1
+        ? Math.floor(columnCount / 2)
+        : Math.round((index * (columnCount - 1)) / (labels.length - 1));
+    normalized[position] = label;
+  });
+
+  return normalized;
 }
 
 function Meter({ label, value }: { label: string; value: number }) {
