@@ -637,6 +637,46 @@ select:focus {
   opacity: 0.55;
 }
 
+.ladder-final {
+  background: #f7f4ed;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin: 16px 0 18px;
+  padding: 14px;
+}
+
+.ladder-final .eyebrow {
+  margin-bottom: 10px;
+}
+
+.ladder-final-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ladder-final-grid article {
+  background: #fffdf8;
+  border: 1px solid rgba(30, 34, 40, 0.08);
+  border-radius: 8px;
+  min-height: 92px;
+  padding: 14px;
+}
+
+.ladder-final-grid h3 {
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1.2;
+  margin: 0 0 8px;
+}
+
+.ladder-final-grid p {
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 0;
+  overflow-wrap: anywhere;
+}
+
 .ladder-scroll {
   overflow-x: auto;
   padding-bottom: 8px;
@@ -852,6 +892,10 @@ select:focus {
 
   .ladder-copy button {
     width: 100%;
+  }
+
+  .ladder-final-grid {
+    grid-template-columns: 1fr;
   }
 
   .ladder-modal {

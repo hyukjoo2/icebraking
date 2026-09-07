@@ -580,6 +580,16 @@ function LadderGame({
       result: bottomLabels[column] ?? "빈 칸",
     };
   });
+  const resultGroups = bottomLabels
+    .filter((label, index, labels): label is string =>
+      Boolean(label) && labels.indexOf(label) === index,
+    )
+    .map((label) => ({
+      label,
+      people: paths
+        .filter((path) => path.result === label)
+        .map((path) => path.person.name),
+    }));
 
   return (
     <div className="ladder-panel">
@@ -595,6 +605,20 @@ function LadderGame({
           </button>
         ) : null}
       </div>
+
+      {ladder.started ? (
+        <div className="ladder-final">
+          <p className="eyebrow">최종 결과</p>
+          <div className="ladder-final-grid">
+            {resultGroups.map((group) => (
+              <article key={group.label}>
+                <h3>{group.label}</h3>
+                <p>{group.people.length ? group.people.join(", ") : "연결 없음"}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <div className="ladder-scroll">
         <div className="ladder-board" style={{ minWidth: width }}>
@@ -692,20 +716,20 @@ function normalizeLadderBottom(
   bottom: Array<string | null>,
   columnCount: number,
 ) {
-  if (bottom.length === columnCount) return bottom;
-
   const labels = bottom.filter((label): label is string => Boolean(label));
+  if (!labels.length) {
+    return Array.from({ length: columnCount }, () => null);
+  }
+
+  if (bottom.length === columnCount && bottom.every(Boolean)) return bottom;
+
   const normalized: Array<string | null> = Array.from(
     { length: columnCount },
     () => null,
   );
 
-  labels.forEach((label, index) => {
-    const position =
-      labels.length === 1
-        ? Math.floor(columnCount / 2)
-        : Math.round((index * (columnCount - 1)) / (labels.length - 1));
-    normalized[position] = label;
+  normalized.forEach((_, index) => {
+    normalized[index] = labels[index % labels.length];
   });
 
   return normalized;
