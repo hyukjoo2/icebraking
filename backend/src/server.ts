@@ -157,11 +157,12 @@ app.get("/api/matches", async (request, response, next) => {
         matchingStarted,
         matches: {
           best: null,
-          noble: null,
-          rightHand: null,
-          tuneUp: null,
-        },
-      });
+        noble: null,
+        rightHand: null,
+        tuneUp: null,
+        drag: null,
+      },
+    });
       return;
     }
 
@@ -183,6 +184,7 @@ app.get("/api/matches", async (request, response, next) => {
         noble: mapMatch("noble"),
         rightHand: mapMatch("rightHand"),
         tuneUp: mapMatch("tuneUp"),
+        drag: mapMatch("drag"),
       },
     });
   } catch (error) {

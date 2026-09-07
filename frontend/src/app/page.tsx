@@ -47,13 +47,14 @@ const hours = [
   ["21", "해시 21:00-22:59"],
 ];
 
-type MatchKey = "best" | "noble" | "rightHand" | "tuneUp";
+type MatchKey = "best" | "noble" | "rightHand" | "tuneUp" | "drag";
 
 const matchLabels: Record<MatchKey, string> = {
   best: "케미 좋은 사람",
   noble: "오늘의 귀인",
   rightHand: "믿을 만한 오른팔",
   tuneUp: "조율하면 강한 조합",
+  drag: "내 발목을 잡는 사람",
 };
 
 type MatchResult = {
@@ -356,7 +357,7 @@ export default function Home() {
           <div className="match-panel">
             <div className="match-panel-head">
               <p className="eyebrow">오늘의 관계 지도</p>
-              <h2>4가지 매칭</h2>
+              <h2>5가지 매칭</h2>
             </div>
 
             {!matchingStarted ? (

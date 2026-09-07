@@ -165,12 +165,14 @@ export function getMatches(me: Participant, participants: Participant[]) {
     available().find((match) => match.score < 90) ?? available()[0],
   );
   const tuneUp = pick([...available()].reverse()[0]);
+  const drag = pick([...available()].reverse()[0]);
 
   return {
     best,
     rightHand,
     noble,
     tuneUp,
+    drag,
   };
 }
 

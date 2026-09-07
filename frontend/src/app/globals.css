@@ -396,8 +396,8 @@ select:focus {
   border: 1px solid var(--line);
   border-radius: 50%;
   margin: 24px auto 0;
-  max-width: 520px;
-  min-height: 420px;
+  max-width: 560px;
+  min-height: 500px;
   position: relative;
 }
 
@@ -442,10 +442,10 @@ select:focus {
   border: 1px solid rgba(30, 34, 40, 0.1);
   border-radius: 8px;
   box-shadow: 0 12px 32px rgba(30, 34, 40, 0.12);
-  min-height: 128px;
+  min-height: 116px;
   padding: 14px;
   position: absolute;
-  width: min(42%, 190px);
+  width: min(39%, 178px);
 }
 
 .radial-card p {
@@ -473,26 +473,28 @@ select:focus {
 
 .radial-card-best {
   left: 50%;
-  top: 4%;
+  top: 3%;
   transform: translateX(-50%);
 }
 
 .radial-card-noble {
-  right: 3%;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 2%;
+  top: 32%;
 }
 
 .radial-card-rightHand {
-  bottom: 4%;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 5%;
+  right: 12%;
 }
 
 .radial-card-tuneUp {
-  left: 3%;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 5%;
+  left: 12%;
+}
+
+.radial-card-drag {
+  left: 2%;
+  top: 32%;
 }
 
 .empty p {
