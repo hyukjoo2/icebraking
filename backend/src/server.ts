@@ -46,7 +46,11 @@ app.use(
 
 app.get("/health", async (_request, response, next) => {
   try {
-    response.json({ ok: true, store: await getStoreHealth() });
+    response.json({
+      ok: true,
+      featureVersion: "ladder-v2",
+      store: await getStoreHealth(),
+    });
   } catch (error) {
     next(error);
   }
