@@ -675,7 +675,6 @@ function LadderGame({
                 key={path.person.id}
                 className="runner-path"
                 points={path.points}
-                pathLength={100}
                 style={{
                   animationDelay: `${index * 0.08}s`,
                   stroke: path.color,
