@@ -644,6 +644,10 @@ select:focus {
   color: var(--muted);
 }
 
+.ladder-labels .empty-label {
+  opacity: 0.36;
+}
+
 .bottom-labels .winner-label {
   background: #fff8ec;
   border-color: #ead8b7;

@@ -511,7 +511,7 @@ function LadderGame({
   ladder: LadderState;
   onStart: () => void;
 }) {
-  const columnCount = Math.max(ladder.top.length, 1);
+  const columnCount = Math.max(ladder.top.length, ladder.bottom.length, 1);
   const width = Math.max(720, columnCount * 92);
   const topY = 68;
   const bottomY = 380;
@@ -564,11 +564,18 @@ function LadderGame({
       <div className="ladder-scroll">
         <div className="ladder-board" style={{ minWidth: width }}>
           <div className="ladder-labels top-labels">
-            {ladder.top.map((person, index) => (
-              <span key={person.id} style={{ left: xFor(index) }}>
-                {person.name}
-              </span>
-            ))}
+            {Array.from({ length: columnCount }, (_, index) => {
+              const person = ladder.top[index];
+              return (
+                <span
+                  key={person?.id ?? `empty-top-${index}`}
+                  className={person ? "" : "empty-label"}
+                  style={{ left: xFor(index) }}
+                >
+                  {person?.name ?? "-"}
+                </span>
+              );
+            })}
           </div>
 
           <svg
@@ -577,9 +584,9 @@ function LadderGame({
             role="img"
             aria-label="사다리 게임 경로"
           >
-            {ladder.top.map((person, index) => (
+            {Array.from({ length: columnCount }, (_, index) => (
               <line
-                key={person.id}
+                key={`column-${index}`}
                 x1={xFor(index)}
                 x2={xFor(index)}
                 y1={topY}

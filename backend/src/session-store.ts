@@ -171,20 +171,24 @@ export function createLadder(participants: Participant[]) {
   const top = participants
     .filter((participant) => !targetNames.includes(participant.name))
     .map(toPublicParticipant);
-  const bottom: Array<string | null> = Array.from({ length: top.length }, () => null);
+  const columnCount = Math.max(top.length, targetNames.length);
+  const bottom: Array<string | null> = Array.from(
+    { length: columnCount },
+    () => null,
+  );
 
-  shuffle(Array.from({ length: top.length }, (_, index) => index))
-    .slice(0, Math.min(targetNames.length, top.length))
+  shuffle(Array.from({ length: columnCount }, (_, index) => index))
+    .slice(0, targetNames.length)
     .forEach((position, index) => {
       bottom[position] = targetNames[index];
     });
 
-  const levelCount = Math.max(8, Math.min(14, top.length + 4));
+  const levelCount = Math.max(8, Math.min(14, columnCount + 4));
   const rungs: LadderState["rungs"] = [];
 
   for (let level = 0; level < levelCount; level += 1) {
     let column = 0;
-    while (column < top.length - 1) {
+    while (column < columnCount - 1) {
       if (Math.random() < 0.34) {
         rungs.push({ level, left: column });
         column += 2;
